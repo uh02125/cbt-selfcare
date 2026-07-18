@@ -93,7 +93,7 @@ export function Settings({ onUpgrade }: { onUpgrade: () => void }) {
       </div>
 
       <p className="tiny" style={{ textAlign: 'center', marginTop: 18 }}>
-        마음쉼 v0.1 · 자가관리 보조 도구
+        마음쉼 v0.1.1 · 자가관리 보조 도구
       </p>
     </div>
   )
