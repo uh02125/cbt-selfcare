@@ -130,7 +130,9 @@ button {
   background: rgba(11, 17, 32, 0.9);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
-  padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+  /* 하단 여백 최소화: safe-area(홈 인디케이터)에서 12px 줄이되 최소 8px 확보
+     (홈 인디케이터 제스처 영역과 겹치지 않는 선) */
+  padding: 8px 12px max(8px, calc(env(safe-area-inset-bottom) - 12px));
   z-index: 20;
 }
 
@@ -670,7 +672,7 @@ input[type='range'] {
   position: fixed;
   top: 0;
   /* 하단 탭바 높이만큼 위에서 끝나 탭바를 가리지 않음 (탭바 z-index 20 > 15) */
-  bottom: calc(env(safe-area-inset-bottom) + 80px);
+  bottom: calc(env(safe-area-inset-bottom) + 48px);
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -742,6 +744,14 @@ input[type='range'] {
 .stepflow__body textarea {
   max-width: 100%;
   min-width: 0;
+}
+
+/* 전체폭 입력(시간/텍스트)은 클리핑 경계에서 살짝 안쪽으로 — 둥근 테두리가 잘리지 않게 */
+.stepflow__body input[type='time'],
+.stepflow__body textarea {
+  display: block;
+  max-width: calc(100% - 8px);
+  margin-inline: auto;
 }
 
 @keyframes step-in {
