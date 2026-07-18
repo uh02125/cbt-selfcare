@@ -1,0 +1,37 @@
+  <자가설문지> 
+    Baseline- 
+    Y-BOCS (T/O/C):22/14/8 
+    BDI:0 
+    BAI:0 
+    OCI-R:56 
+    STAT-S/T:10/34 
+     
+    Endpoint- 
+    Y-BOCS (T/O/C):12/5/7 
+    BDI:0 
+    BAI:0 
+    OCI-R:30 
+    STAI-S/-T:10/30 
+     
+    <전공의평가> 
+    Baseline- 
+    DY-BOCS 상 main symptom: contamination/washing 
+    Y-BOCS Sx. checklist: 
+    Obsession-aggression(0) contamination(2) sexual(0) hoarding(1) religious(0) symmetry(1) somatic(0) 
+    Compulsion-cleaning(2) checking(2) repeating(0) counting(0) ordering(0) hoarding(1) 
+    Y-BOCS (T/O/C):26/13/13 
+    HAM-D/-A:2/2 
+    CGI-S:5 
+     
+    Endpoint- 
+    Y-BOCS (T/O/C):20/9/11 
+    HAM-D/-A:4/4 
+    CGI-S/-I:5/3 
+     
+    <PEAS> 
+    과제 1 노출훈련(시도 50%), 노출훈련(수행도 3), 반응방지훈련(저항횟수 10%) 
+    과제 2 노출훈련(시도 50%), 노출훈련(수행도 3), 반응방지훈련(저항횟수 10%) 
+    과제 3 노출훈련(시도 50%), 노출훈련(수행도 3), 반응방지훈련(저항횟수 10%) 
+    과제 4 노출훈련(시도 100%), 노출훈련(수행도 3), 반응방지훈련(저항횟수 10%) 
+    과제 5 노출훈련(시도 100%), 노출훈련(수행도 3), 반응방지훈련(저항횟수 10%) 
+    과제 6 노출훈련(시도 100%), 노출훈련(수행도 3), 반응방지훈련(저항횟수 10%)

@@ -13,6 +13,7 @@ interface StoreValue {
   addSleepNote: (n: Omit<SleepNote, 'id' | 'createdAt'>) => void
   deleteSleepNote: (id: string) => void
   setPremiumActive: (sessionId: string | null) => void
+  toggleSessionComplete: (no: number) => void
   updateSettings: (patch: Partial<AppSettings>) => void
   replaceAll: (data: AppData) => void
   resetAll: () => void
@@ -58,6 +59,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
+  const toggleSessionComplete = useCallback<StoreValue['toggleSessionComplete']>((no) => {
+    setData((d) => {
+      const done = d.program.completedSessions
+      const next = done.includes(no) ? done.filter((x) => x !== no) : [...done, no].sort()
+      return { ...d, program: { ...d.program, completedSessions: next } }
+    })
+  }, [])
+
   const updateSettings = useCallback<StoreValue['updateSettings']>((patch) => {
     setData((d) => ({ ...d, settings: { ...d.settings, ...patch } }))
   }, [])
@@ -78,11 +87,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addSleepNote,
       deleteSleepNote,
       setPremiumActive,
+      toggleSessionComplete,
       updateSettings,
       replaceAll,
       resetAll,
     }),
-    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, updateSettings, replaceAll, resetAll],
+    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, updateSettings, replaceAll, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

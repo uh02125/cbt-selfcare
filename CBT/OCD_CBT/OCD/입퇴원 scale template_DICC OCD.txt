@@ -1,0 +1,38 @@
+<자가설문지>
+Baseline-
+Y-BOCS (T/O/C):
+BDI:
+BAI:
+OCI-R:
+STAT-S/T:
+
+Endpoint-
+Y-BOCS (T/O/C):
+BDI:
+BAI:
+OCI-R:
+STAI-S/-T
+
+<전공의평가>
+Baseline-
+DY-BOCS 상 main symptom: 
+Y-BOCS Sx. checklist: 
+Obsession-aggression(2) contamination(2) sexual(0) hoarding(1) religious(0) symmetry(2) somatic(0) 
+Compulsion-cleaning(1) checking(2) repeating(1) counting(2) ordering(2) hoarding(1) 
+Y-BOCS (T/O/C):
+HAM-D/-A:
+CGI-S:
+
+Endpoint-
+Y-BOCS (T/O/C):
+HAM-D/-A:
+CGI-S/-I:
+
+<PEAS>
+과제 1 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)
+과제 2 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)
+과제 3 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)
+과제 4 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)
+과제 5 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)
+과제 6 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)
+

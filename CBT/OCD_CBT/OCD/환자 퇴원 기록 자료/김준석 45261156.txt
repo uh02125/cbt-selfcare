@@ -1,0 +1,41 @@
+김준석 45261156
+
+ <자가설문지> 
+    Baseline- 
+    Y-BOCS (T/O/C): 14/12/26 
+    BDI: 26 
+    BAI: 10 
+    OCI-R: 6 
+    STAT-S/T: 10/17 
+     
+    Endpoint- 
+    Y-BOCS (T/O/C): 5/5/10 
+    BDI: 7 
+    BAI: 8 
+    OCI-R: 5 
+    STAI-S/-T :10/15 
+     
+    <전공의평가> 
+    Baseline- 
+    DY-BOCS 상 main symptom: miscellaneous 
+    Y-BOCS Sx. checklist: 
+    Obsession-aggression(0) contamination(0) sexual(0) hoarding(0) religious(0) symmetry(0) somatic(2) : 몸에서 악취가 난다는 생각을 somatic 으로 평가함. 
+    Compulsion-cleaning(0) checking(2) repeating(0) counting(0) ordering(0) hoarding(0) : 사실 checking 은 심하지 않음. avoidance 주가 되나, 이전 외래 기록에서도 C로 평가하여 이전과 같이 평가함. checking 은 거의 없음. 
+    Y-BOCS (T/O/C): 15/13/28 (외래 초진에 따라 avoidance 로 compulsion 으로 평가해서 시행.) 
+    HAM-D/-A: 11/7 
+    CGI-S: 5 
+     
+    Endpoint- 
+    Y-BOCS (T/O/C): 6/5/11 
+    HAM-D/-A: 6/7 
+    CGI-S/-I: 3 
+     
+    <PEAS> 
+    과제 1 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %) 3,4,3 
+    과제 2 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %) 3.4.3 
+    과제 3 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %) 4,5,4 
+    과제 4 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %) 4,5,4 
+    과제 5 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %) 4,6,5 
+    과제 6 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %) 4,6,5 
+
+약물로 lexapro 40mg까지 증량 및 RSP 0.5mg add 함. 

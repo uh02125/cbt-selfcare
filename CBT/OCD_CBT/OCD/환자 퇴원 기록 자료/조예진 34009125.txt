@@ -1,0 +1,42 @@
+<자가설문지> 
+    Baseline- 
+    Y-BOCS (T/O/C): 17/18/35 
+    BDI: 28 
+    BAI: 26 
+    OCI-R: 69 
+    STAT-S/T: 17/36 
+     
+    Endpoint- 
+    Y-BOCS (T/O/C): 14/15/29 
+    BDI: 25 
+    BAI: 25 
+    OCI-R: 60 
+    STAI-S/-T 10/34 
+     
+    <전공의평가> 
+    Baseline- 
+    DY-BOCS 상 main symptom: Miscellaneous 
+    Y-BOCS Sx. checklist: 
+    Obsession-aggression(0) contamination(1) sexual(0) hoarding(1) religious(0) symmetry(2) somatic(1) 
+    Compulsion-cleaning(2) checking(2) repeating(0) counting(1) ordering(1) hoarding(1) 
+    Y-BOCS (T/O/C): 16/16/32 
+    HAM-D/-A: 16/17 
+    CGI-S: 6 
+     
+    Endpoint- 
+    Y-BOCS (T/O/C): 13/13/26 
+    HAM-D/-A: 15/12 
+    CGI-S/-I: 5 
+     
+    <PEAS> 
+    과제 1 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)3,4,3 
+    과제 2 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)3,3,2 
+    과제 3 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)3,4,3 
+    과제 4 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)2,2,2 
+    과제 5 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)2,2,2 
+    과제 6 노출훈련(시도 %), 노출훈련(수행도 ), 반응방지훈련(저항횟수 %)2,2,2 
+     
+    환자 입원 이후 초기에는 조금 하는 모습 있다가 이후 환자 과제 수행 잘 해오지 못함. 
+    이에 motivation 동기 강화에 초점을 두고 면담 진행했으나 과제 수행의 어려움 지속됨. 
+    RSP 증량 및 CNZP add 함. 
+    이전 기록상 SSRI 에 민감한 모습 있어서 ECTP 은 소량 증량

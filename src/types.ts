@@ -52,6 +52,12 @@ export interface AppData {
   sleepNotes: SleepNote[]
   premium: PremiumState
   settings: AppSettings
+  program: ProgramState
+}
+
+/** 4세션 교육 프로그램 진도 */
+export interface ProgramState {
+  completedSessions: number[] // 완료한 세션 번호 (1~4)
 }
 
 export interface PremiumState {

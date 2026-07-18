@@ -9,14 +9,17 @@ import { WorryFlow } from './features/WorryFlow'
 import { History } from './features/History'
 import { Breathing } from './features/Breathing'
 import { Sleep } from './features/Sleep'
+import { Learn } from './features/Learn'
 import { Settings } from './features/Settings'
 import { Paywall } from './features/Paywall'
 import { Toast } from './components/common'
+import type { TabId } from './lib/program'
 
-type Tab = 'record' | 'history' | 'breathe' | 'sleep' | 'settings'
+type Tab = TabId
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'record', label: '기록', icon: '📝' },
+  { id: 'learn', label: '배우기', icon: '📖' },
   { id: 'history', label: '추이', icon: '📈' },
   { id: 'breathe', label: '호흡', icon: '🫧' },
   { id: 'sleep', label: '수면', icon: '🌙' },
@@ -25,6 +28,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 
 const TAB_TITLES: Record<Tab, { title: string; sub: string }> = {
   record: { title: '마음쉼', sub: '걱정을 적고, 다르게 바라보기' },
+  learn: { title: '배우기', sub: '수면을 이해하는 4주 교육 과정' },
   history: { title: '나의 추이', sub: '기록이 쌓일수록 보이는 변화' },
   breathe: { title: '호흡하기', sub: '지금 이 순간을 가라앉히기' },
   sleep: { title: '잠들기 전', sub: '머리를 비우고 내려놓기' },
@@ -84,6 +88,7 @@ export function App() {
                 }}
               />
             )}
+            {tab === 'learn' && <Learn onNavigate={setTab} />}
             {tab === 'history' && <History onUpgrade={openPaywall} />}
             {tab === 'breathe' && <Breathing />}
             {tab === 'sleep' && (

@@ -94,7 +94,7 @@ button {
   width: 100%;
   max-width: 480px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   background: rgba(11, 17, 32, 0.92);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
