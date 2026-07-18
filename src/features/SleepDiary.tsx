@@ -254,7 +254,7 @@ export function SleepDiary({ onSaved, onClose }: { onSaved: () => void; onClose:
       {key === 'summary' && (
         <div style={{ textAlign: 'center' }}>
           <div style={EYE}>오늘의 수면효율</div>
-          <div style={{ position: 'relative', width: 200, height: 200, margin: '10px auto 4px' }}>
+          <div style={{ position: 'relative', width: 200, maxWidth: '100%', height: 200, margin: '10px auto 4px' }}>
             <Ring value={se} />
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-0.03em' }}>

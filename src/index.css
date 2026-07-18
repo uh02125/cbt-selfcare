@@ -19,7 +19,10 @@
   color-scheme: dark;
 }
 
-* {
+/* [원인 3] padding/border 가 요소 밖으로 튀지 않도록 전역 border-box (pseudo 포함) */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -27,6 +30,13 @@ html,
 body,
 #root {
   height: 100%;
+}
+
+/* [원인 6] 가로 스크롤 안전장치 — 페이지 최상위에만 적용(sticky 헤더 영향 없음) */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -37,7 +47,7 @@ body {
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
-  /* 한글은 어절(단어) 단위로 줄바꿈 — '있다'가 '있+다'로 쪼개지지 않도록 */
+  /* [원인 4] 한글은 어절(단어) 단위로 줄바꿈 — '있다'가 '있+다'로 쪼개지지 않도록 */
   word-break: keep-all;
   overflow-wrap: break-word;
 }
@@ -418,6 +428,8 @@ input[type='range'] {
   align-items: baseline;
   gap: 8px;
   margin-bottom: 6px;
+  /* [원인 5] nowrap 배지(.delta)와 날짜가 안 맞으면 줄바꿈되도록 */
+  flex-wrap: wrap;
 }
 
 .entry__date {
@@ -797,7 +809,8 @@ input[type='range'] {
 
 .report-metrics {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* [원인 5] minmax(0,1fr): 긴 내용이 트랙을 밀어내 넘치는 것 방지 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 14px;
 }
 
@@ -845,6 +858,12 @@ input[type='range'] {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+/* [원인 5] flex 자식이 내용 크기만큼 늘어나 부모 밖으로 넘치지 않도록 */
+.row-between > * {
+  min-width: 0;
 }
 
 .tiny {

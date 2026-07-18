@@ -111,7 +111,7 @@ function SleepEfficiencyHero({ result }: { result: AssessmentResult }) {
   return (
     <div className="report-hero">
       <div className="report-hero__label">수면 효율</div>
-      <div style={{ position: 'relative', width: 208, height: 208, margin: '0 auto' }}>
+      <div style={{ position: 'relative', width: 208, maxWidth: '100%', height: 208, margin: '0 auto' }}>
         <svg viewBox="0 0 208 208" width="208" height="208">
           <circle cx="104" cy="104" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="16" />
           <circle
