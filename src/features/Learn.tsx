@@ -2,11 +2,10 @@
 // 스토리형 리더: 한 화면 = 한 조각(교육/규칙/자가검사 문항). 답을 고르면 자동으로 다음.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties, Dispatch, ReactNode, SetStateAction } from 'react'
+import type { Dispatch, ReactNode, SetStateAction } from 'react'
 import { useStore } from '../store'
 import { SESSIONS, sessionByNo } from '../lib/program'
 import type { Block, Session, TabId } from '../lib/program'
-import { Disclaimer } from '../components/common'
 import { StepFlow } from '../components/StepFlow'
 import {
   ISI_ITEMS,
@@ -40,6 +39,9 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
 
   if (!started) return <LearnIntro onStart={() => setStarted(true)} />
 
+  const completedSessions = SESSIONS.filter((s) => done.includes(s.no))
+  const current = SESSIONS.find((s) => !done.includes(s.no)) // 첫 미완료 = 현재 진행 가능
+
   return (
     <div>
       <div className="card">
@@ -59,43 +61,34 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
         </div>
       </div>
 
-      {SESSIONS.map((s) => {
-        const isDone = done.includes(s.no)
-        const unlocked = s.no === 1 || done.includes(s.no - 1)
-        const status: 'done' | 'available' | 'locked' = isDone ? 'done' : unlocked ? 'available' : 'locked'
+      {/* 완료한 세션: 한 줄 요약 (접힌 형태) */}
+      {completedSessions.length > 0 && (
+        <p className="tiny" style={{ margin: '4px 4px 4px' }}>
+          완료한 세션: {completedSessions.map((s) => `세션 ${s.no} ✓`).join(', ')}
+        </p>
+      )}
 
-        const cardStyle: CSSProperties =
-          status === 'available'
-            ? { borderColor: 'var(--accent-strong)', background: 'var(--accent-soft)' }
-            : status === 'locked'
-              ? { background: 'var(--card)', opacity: 0.45 }
-              : { background: 'var(--card)' }
-
-        return (
-          <button
-            key={s.no}
-            className="entry"
-            style={{ width: '100%', textAlign: 'left', cursor: status === 'locked' ? 'default' : 'pointer', ...cardStyle }}
-            onClick={() => status !== 'locked' && setOpenNo(s.no)}
-            disabled={status === 'locked'}
-          >
-            <div className="entry__top" style={{ marginBottom: 4 }}>
-              <span className="step-eyebrow" style={{ margin: 0 }}>세션 {s.no} · {s.minutes}분</span>
-              {status === 'done' && <span className="delta delta--down">✓ 완료</span>}
-              {status === 'available' && (
-                <span className="delta" style={{ color: 'var(--accent)', background: 'transparent' }}>지금 시작 →</span>
-              )}
-              {status === 'locked' && <span className="delta delta--flat">🔒 잠김</span>}
-            </div>
-            <p className="entry__thought" style={{ margin: '0 0 2px', fontSize: 17 }}>{s.title}</p>
-            <p className="tiny" style={{ margin: 0 }}>{s.subtitle}</p>
-          </button>
-        )
-      })}
-
-      <div style={{ marginTop: 16 }}>
-        <Disclaimer />
-      </div>
+      {/* 현재 진행 가능한 세션 1개만 카드로 */}
+      {current ? (
+        <button
+          className="entry"
+          style={{ width: '100%', textAlign: 'left', cursor: 'pointer', borderColor: 'var(--accent-strong)', background: 'var(--accent-soft)' }}
+          onClick={() => setOpenNo(current.no)}
+        >
+          <div className="entry__top" style={{ marginBottom: 4 }}>
+            <span className="step-eyebrow" style={{ margin: 0 }}>세션 {current.no} · {current.minutes}분</span>
+            <span className="delta" style={{ color: 'var(--accent)', background: 'transparent' }}>지금 시작 →</span>
+          </div>
+          <p className="entry__thought" style={{ margin: '0 0 2px', fontSize: 17 }}>{current.title}</p>
+          <p className="tiny" style={{ margin: 0 }}>{current.subtitle}</p>
+        </button>
+      ) : (
+        <div className="card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 32, marginBottom: 6 }}>🎉</div>
+          <p style={{ margin: 0, fontWeight: 700, fontSize: 16 }}>모든 세션을 마쳤어요!</p>
+          <p className="tiny" style={{ margin: '4px 0 0' }}>배운 내용을 꾸준히 실천해봐요.</p>
+        </div>
+      )}
     </div>
   )
 }
