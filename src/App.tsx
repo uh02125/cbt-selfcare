@@ -9,13 +9,15 @@ import { WorryFlow } from './features/WorryFlow'
 import { History } from './features/History'
 import { Breathing } from './features/Breathing'
 import { Sleep } from './features/Sleep'
+import { SleepDiary } from './features/SleepDiary'
+import { RecordHome } from './features/RecordHome'
 import { Learn } from './features/Learn'
 import { Settings } from './features/Settings'
 import { Paywall } from './features/Paywall'
 import { Toast } from './components/common'
 import type { TabId } from './lib/program'
 
-type Tab = TabId
+type Tab = TabId | 'diary' | 'thought'
 
 // 하단 탭바에 보이는 3개만
 const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -28,9 +30,11 @@ const MAIN_TABS: Tab[] = ['record', 'learn', 'history']
 const isSubView = (t: Tab) => !MAIN_TABS.includes(t)
 
 const TAB_TITLES: Record<Tab, { title: string; sub: string }> = {
-  record: { title: '마음쉼', sub: '걱정을 적고, 다르게 바라보기' },
+  record: { title: '기록', sub: '오늘의 수면과 마음을 남겨요' },
   learn: { title: '배우기', sub: '수면을 이해하는 4주 과정' },
   history: { title: '나의 추이', sub: '기록이 쌓일수록 보이는 변화' },
+  diary: { title: '수면일기', sub: '' },
+  thought: { title: '생각 기록', sub: '걱정을 다르게 바라보기' },
   breathe: { title: '호흡하기', sub: '지금 이 순간을 가라앉히기' },
   sleep: { title: '잠들기 전', sub: '머리를 비우고 내려놓기' },
   settings: { title: '설정', sub: '데이터와 계정 관리' },
@@ -102,23 +106,23 @@ export function App() {
           <Paywall onClose={() => setPaywallOpen(false)} />
         ) : (
           <>
-            {tab === 'record' && (
-              <>
-                <div className="btn-row" style={{ marginTop: 0, marginBottom: 20 }}>
-                  <button className="btn" style={{ padding: '16px 0', fontSize: 15 }} onClick={() => navigate('breathe')}>
-                    🫧 호흡하기
-                  </button>
-                  <button className="btn" style={{ padding: '16px 0', fontSize: 15 }} onClick={() => navigate('sleep')}>
-                    🌙 잠들기 루틴
-                  </button>
-                </div>
-                <WorryFlow
-                  onSaved={() => {
-                    setToast('기록을 저장했어요')
-                    setTab('history')
-                  }}
-                />
-              </>
+            {tab === 'record' && <RecordHome onOpen={(t) => navigate(t)} />}
+            {tab === 'diary' && (
+              <SleepDiary
+                onSaved={() => {
+                  setToast('수면일기를 저장했어요')
+                  setTab('history')
+                }}
+                onClose={() => navigate('record')}
+              />
+            )}
+            {tab === 'thought' && (
+              <WorryFlow
+                onSaved={() => {
+                  setToast('생각 기록을 저장했어요')
+                  setTab('history')
+                }}
+              />
             )}
             {tab === 'learn' && <Learn onNavigate={navigate} />}
             {tab === 'history' && <History onUpgrade={openPaywall} />}
