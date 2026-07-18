@@ -634,6 +634,24 @@ input[type='range'] {
   margin: 18px 0;
 }
 
+/* ── 숫자 스크롤 휠 피커 ───────────────────────────────────────── */
+.wheelpick {
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.wheelpick::-webkit-scrollbar {
+  display: none;
+}
+.wheelpick__row {
+  scroll-snap-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ── 공통 스텝 플로우 (한 스텝 = 한 화면) ───────────────────────── */
 .stepflow {
   position: fixed;
