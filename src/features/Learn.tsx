@@ -7,6 +7,7 @@ import { useStore } from '../store'
 import { SESSIONS, sessionByNo } from '../lib/program'
 import type { Block, Session, TabId } from '../lib/program'
 import { Disclaimer } from '../components/common'
+import { StepFlow } from '../components/StepFlow'
 import {
   ISI_ITEMS,
   DBAS_ITEMS,
@@ -213,53 +214,23 @@ function SessionReader({
   }, [page, ans, addAssessment])
 
   return (
-    <div style={{ minHeight: '76vh', display: 'flex', flexDirection: 'column' }}>
-      {/* 상단: 닫기 + 진행바 */}
-      <div className="row-between" style={{ marginBottom: 24, gap: 12 }}>
-        <button
-          className="btn btn--ghost"
-          style={{ padding: '4px 10px', fontSize: 20, lineHeight: 1, border: 'none' }}
-          onClick={onBack}
-          aria-label="목록으로"
-        >
-          ✕
-        </button>
-        <div style={{ flex: 1, height: 6, borderRadius: 999, background: 'var(--bg-elev)', overflow: 'hidden' }}>
-          <div style={{ width: `${((i + 1) / total) * 100}%`, height: '100%', background: 'var(--accent)', transition: 'width 0.25s' }} />
-        </div>
-        <span className="tiny" style={{ minWidth: 40, textAlign: 'right' }}>{i + 1}/{total}</span>
-      </div>
-
-      {/* 본문 */}
-      <div style={{ flex: 1 }}>
-        <PageBody page={page} session={session} ans={ans} setAns={setAns} next={next} onNavigate={onNavigate} />
-      </div>
-
-      {/* 하단 내비 */}
-      <div className="btn-row" style={{ marginTop: 24 }}>
-        {i > 0 && (
-          <button className="btn btn--ghost" style={{ flex: '0 0 84px', fontSize: 16, padding: '16px 0' }} onClick={() => go(-1)}>
-            이전
-          </button>
-        )}
-        {!atEnd ? (
-          <button className="btn btn--primary" style={{ fontSize: 18, padding: '16px 0' }} onClick={next}>
-            다음
-          </button>
-        ) : (
-          <button
-            className={`btn ${isDone ? '' : 'btn--primary'}`}
-            style={{ fontSize: 18, padding: '16px 0' }}
-            onClick={() => {
+    <StepFlow
+      step={i}
+      total={total}
+      onClose={onBack}
+      onPrev={() => go(-1)}
+      nextLabel={atEnd ? (isDone ? '완료 취소' : '세션 완료 ✓') : '다음'}
+      onNext={
+        atEnd
+          ? () => {
               toggleSessionComplete(session.no)
               if (!isDone) onBack()
-            }}
-          >
-            {isDone ? '완료 취소' : '세션 완료 ✓'}
-          </button>
-        )}
-      </div>
-    </div>
+            }
+          : next
+      }
+    >
+      <PageBody page={page} session={session} ans={ans} setAns={setAns} next={next} onNavigate={onNavigate} />
+    </StepFlow>
   )
 }
 

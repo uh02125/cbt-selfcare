@@ -634,6 +634,102 @@ input[type='range'] {
   margin: 18px 0;
 }
 
+/* ── 공통 스텝 플로우 (한 스텝 = 한 화면) ───────────────────────── */
+.stepflow {
+  position: fixed;
+  top: 0;
+  /* 하단 탭바 높이만큼 위에서 끝나 탭바를 가리지 않음 (탭바 z-index 20 > 15) */
+  bottom: calc(env(safe-area-inset-bottom) + 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 16px) 22px 16px;
+}
+
+.stepflow__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stepflow__close {
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+  flex: 0 0 auto;
+}
+
+.stepflow__bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+
+.stepflow__bar > div {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.stepflow__count {
+  font-size: 12px;
+  color: var(--text-faint);
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepflow__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: step-in 0.28s ease;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.stepflow__nav {
+  display: flex;
+  gap: 10px;
+  padding-top: 18px;
+}
+
+.stepflow__next {
+  flex: 1;
+  font-size: 18px;
+  padding: 16px 0;
+}
+
+.stepflow__prev {
+  flex: 0 0 84px;
+  font-size: 16px;
+  padding: 16px 0;
+}
+
 /* ── 리포트(추이) 화면 전용 ────────────────────────────────────── */
 .report {
   display: flex;

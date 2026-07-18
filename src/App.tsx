@@ -128,6 +128,7 @@ export function App() {
                 onSaved={() => {
                   setToast('오늘 밤 기록을 저장했어요')
                 }}
+                onClose={() => navigate(returnTab)}
               />
             )}
             {tab === 'settings' && <Settings onUpgrade={openPaywall} />}
