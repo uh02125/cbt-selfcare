@@ -28,6 +28,7 @@ import {
 export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
   const { data } = useStore()
   const [openNo, setOpenNo] = useState<number | null>(null)
+  const [started, setStarted] = useState(false)
   const done = data.program.completedSessions
 
   if (openNo != null) {
@@ -36,6 +37,8 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
       return <SessionReader session={session} onBack={() => setOpenNo(null)} onNavigate={onNavigate} />
     }
   }
+
+  if (!started) return <LearnIntro onStart={() => setStarted(true)} />
 
   return (
     <div>
@@ -78,6 +81,30 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
       <div style={{ marginTop: 16 }}>
         <Disclaimer />
       </div>
+    </div>
+  )
+}
+
+/* ─────────────────────────── 소개 화면 ─────────────────────────── */
+function LearnIntro({ onStart }: { onStart: () => void }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '72vh' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ fontSize: 44, marginBottom: 16 }}>🌙</div>
+        <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.3, margin: '0 0 16px' }}>
+          수면을 이해하는<br />4주 과정
+        </h1>
+        <p style={{ fontSize: 17, lineHeight: 1.75, color: 'var(--text-dim)', margin: 0 }}>
+          불면증 인지행동치료(CBT-I)의 원리를 바탕으로 한 4개의 세션이에요. 잠에 대한 오해를 풀고,
+          습관과 생각을 하나씩 다뤄가며 더 편안한 잠에 다가갑니다.
+        </p>
+        <p style={{ fontSize: 12.5, lineHeight: 1.6, color: 'var(--text-faint)', margin: '22px 0 0' }}>
+          이 콘텐츠는 자가관리를 돕기 위한 정보이며, 의학적 진단이나 치료를 대신하지 않습니다.
+        </p>
+      </div>
+      <button className="btn btn--primary btn--block" style={{ fontSize: 18, padding: '17px 0', marginTop: 20 }} onClick={onStart}>
+        시작하기
+      </button>
     </div>
   )
 }
