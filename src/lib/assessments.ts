@@ -54,6 +54,15 @@ export const DBAS_ITEMS: string[] = [
   '밤에 못 잔 다음 날엔 해야 할 일을 미루거나 취소하게 된다.',
 ]
 
+// 슬라이더 대신 탭으로 고르는 5단계 (0~10 척도에 매핑). 0=강한 부정, 10=강한 긍정.
+export const DBAS_OPTIONS: { label: string; v: number }[] = [
+  { label: '전혀 아니다', v: 0 },
+  { label: '아니다', v: 2.5 },
+  { label: '보통', v: 5 },
+  { label: '그렇다', v: 7.5 },
+  { label: '매우 그렇다', v: 10 },
+]
+
 export const DBAS_THRESHOLD = 3.8 // 항목평균(0~10). 초과 시 임상적 불면 수준
 
 export function interpretDBAS(mean: number): { band: string; tone: 'good' | 'warn' | 'bad' } {
