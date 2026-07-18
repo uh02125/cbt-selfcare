@@ -639,7 +639,7 @@ input[type='range'] {
   position: fixed;
   top: 0;
   /* 하단 탭바 높이만큼 위에서 끝나 탭바를 가리지 않음 (탭바 z-index 20 > 15) */
-  bottom: calc(env(safe-area-inset-bottom) + 70px);
+  bottom: calc(env(safe-area-inset-bottom) + 80px);
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -648,7 +648,7 @@ input[type='range'] {
   z-index: 15;
   display: flex;
   flex-direction: column;
-  padding: calc(env(safe-area-inset-top) + 16px) 22px 16px;
+  padding: calc(env(safe-area-inset-top) + 16px) 22px 0;
 }
 
 .stepflow__top {
@@ -715,7 +715,10 @@ input[type='range'] {
 .stepflow__nav {
   display: flex;
   gap: 10px;
-  padding-top: 18px;
+  /* 액션 버튼 영역을 콘텐츠와 구분하는 옅은 구분선 */
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding: 18px 0 30px; /* 아래 30px: '다음' 버튼과 하단 탭바 사이 여백 */
 }
 
 .stepflow__next {
