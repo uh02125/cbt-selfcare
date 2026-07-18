@@ -2,7 +2,7 @@
 // 스토리형 리더: 한 화면 = 한 조각(교육/규칙/자가검사 문항). 답을 고르면 자동으로 다음.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { Dispatch, ReactNode, SetStateAction } from 'react'
+import type { CSSProperties, Dispatch, ReactNode, SetStateAction } from 'react'
 import { useStore } from '../store'
 import { SESSIONS, sessionByNo } from '../lib/program'
 import type { Block, Session, TabId } from '../lib/program'
@@ -61,16 +61,31 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
 
       {SESSIONS.map((s) => {
         const isDone = done.includes(s.no)
+        const unlocked = s.no === 1 || done.includes(s.no - 1)
+        const status: 'done' | 'available' | 'locked' = isDone ? 'done' : unlocked ? 'available' : 'locked'
+
+        const cardStyle: CSSProperties =
+          status === 'available'
+            ? { borderColor: 'var(--accent-strong)', background: 'var(--accent-soft)' }
+            : status === 'locked'
+              ? { background: 'var(--card)', opacity: 0.45 }
+              : { background: 'var(--card)' }
+
         return (
           <button
             key={s.no}
             className="entry"
-            style={{ width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--card)' }}
-            onClick={() => setOpenNo(s.no)}
+            style={{ width: '100%', textAlign: 'left', cursor: status === 'locked' ? 'default' : 'pointer', ...cardStyle }}
+            onClick={() => status !== 'locked' && setOpenNo(s.no)}
+            disabled={status === 'locked'}
           >
             <div className="entry__top" style={{ marginBottom: 4 }}>
               <span className="step-eyebrow" style={{ margin: 0 }}>세션 {s.no} · {s.minutes}분</span>
-              {isDone ? <span className="delta delta--down">✓ 완료</span> : <span className="delta delta--flat">시작 →</span>}
+              {status === 'done' && <span className="delta delta--down">✓ 완료</span>}
+              {status === 'available' && (
+                <span className="delta" style={{ color: 'var(--accent)', background: 'transparent' }}>지금 시작 →</span>
+              )}
+              {status === 'locked' && <span className="delta delta--flat">🔒 잠김</span>}
             </div>
             <p className="entry__thought" style={{ margin: '0 0 2px', fontSize: 17 }}>{s.title}</p>
             <p className="tiny" style={{ margin: 0 }}>{s.subtitle}</p>
