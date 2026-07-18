@@ -649,6 +649,7 @@ input[type='range'] {
 /* ── 숫자 스크롤 휠 피커 ───────────────────────────────────────── */
 .wheelpick {
   overflow-y: auto;
+  overflow-x: hidden;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -679,6 +680,8 @@ input[type='range'] {
   display: flex;
   flex-direction: column;
   padding: calc(env(safe-area-inset-top) + 16px) 22px 0;
+  /* fixed 컨테이너 내부의 가로 넘침을 여기서 직접 클리핑 (body 안전장치는 fixed엔 안 먹힘) */
+  overflow-x: hidden;
 }
 
 .stepflow__top {
@@ -724,11 +727,21 @@ input[type='range'] {
 .stepflow__body {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
+  /* 세로만 스크롤 — 가로는 명시적으로 막아 내부 넘침 스크롤 차단 */
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   animation: step-in 0.28s ease;
+}
+
+/* 스텝 본문 안의 입력 요소는 컨테이너를 넘지 않도록 */
+.stepflow__body input,
+.stepflow__body textarea {
+  max-width: 100%;
+  min-width: 0;
 }
 
 @keyframes step-in {
