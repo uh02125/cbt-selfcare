@@ -3,7 +3,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { AppData, SleepNote, WorryEntry, AppSettings } from './types'
+import type { AppData, SleepNote, WorryEntry, AppSettings, AssessmentResult } from './types'
 import { DEFAULT_DATA, loadData, makeId, saveData } from './lib/storage'
 
 interface StoreValue {
@@ -14,6 +14,7 @@ interface StoreValue {
   deleteSleepNote: (id: string) => void
   setPremiumActive: (sessionId: string | null) => void
   toggleSessionComplete: (no: number) => void
+  addAssessment: (r: Omit<AssessmentResult, 'id' | 'createdAt'>) => void
   updateSettings: (patch: Partial<AppSettings>) => void
   replaceAll: (data: AppData) => void
   resetAll: () => void
@@ -67,6 +68,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const addAssessment = useCallback<StoreValue['addAssessment']>((r) => {
+    const result: AssessmentResult = { ...r, id: makeId(), createdAt: Date.now() }
+    setData((d) => ({ ...d, assessments: [result, ...d.assessments] }))
+  }, [])
+
   const updateSettings = useCallback<StoreValue['updateSettings']>((patch) => {
     setData((d) => ({ ...d, settings: { ...d.settings, ...patch } }))
   }, [])
@@ -88,11 +94,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteSleepNote,
       setPremiumActive,
       toggleSessionComplete,
+      addAssessment,
       updateSettings,
       replaceAll,
       resetAll,
     }),
-    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, updateSettings, replaceAll, resetAll],
+    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, addAssessment, updateSettings, replaceAll, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

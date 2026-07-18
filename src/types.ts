@@ -53,6 +53,16 @@ export interface AppData {
   premium: PremiumState
   settings: AppSettings
   program: ProgramState
+  assessments: AssessmentResult[]
+}
+
+/** 자가검사 결과 (ISI, DBAS-16, 수면효율, DSM-5) */
+export interface AssessmentResult {
+  id: string
+  kind: 'isi' | 'dbas' | 'habits' | 'dsm5'
+  createdAt: number
+  score: number // isi: 총점 0~28 / dbas: 평균*10 (0~100) / habits: 수면효율 % / dsm5: 1(해당) 0(비해당)
+  meta?: Record<string, string | number | boolean>
 }
 
 /** 4세션 교육 프로그램 진도 */

@@ -6,6 +6,7 @@ import { useStore } from '../store'
 import { SESSIONS, sessionByNo } from '../lib/program'
 import type { Block, Session, TabId } from '../lib/program'
 import { Disclaimer } from '../components/common'
+import { IsiQuiz, DbasQuiz, HabitsForm, Dsm5Check } from './Assessments'
 
 export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
   const { data } = useStore()
@@ -222,5 +223,16 @@ function BlockView({ block, onNavigate }: { block: Block; onNavigate: (tab: TabI
           </div>
         </button>
       )
+    case 'assessment':
+      switch (block.kind) {
+        case 'isi':
+          return <IsiQuiz />
+        case 'dbas':
+          return <DbasQuiz />
+        case 'habits':
+          return <HabitsForm />
+        case 'dsm5':
+          return <Dsm5Check />
+      }
   }
 }
