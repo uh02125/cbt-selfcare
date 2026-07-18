@@ -17,18 +17,19 @@ import type { TabId } from './lib/program'
 
 type Tab = TabId
 
+// 하단 탭바에 보이는 3개만
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'record', label: '기록', icon: '📝' },
   { id: 'learn', label: '배우기', icon: '📖' },
   { id: 'history', label: '추이', icon: '📈' },
-  { id: 'breathe', label: '호흡', icon: '🫧' },
-  { id: 'sleep', label: '수면', icon: '🌙' },
-  { id: 'settings', label: '설정', icon: '⚙️' },
 ]
+
+const MAIN_TABS: Tab[] = ['record', 'learn', 'history']
+const isSubView = (t: Tab) => !MAIN_TABS.includes(t)
 
 const TAB_TITLES: Record<Tab, { title: string; sub: string }> = {
   record: { title: '마음쉼', sub: '걱정을 적고, 다르게 바라보기' },
-  learn: { title: '배우기', sub: '수면을 이해하는 4주 교육 과정' },
+  learn: { title: '배우기', sub: '수면을 이해하는 4주 과정' },
   history: { title: '나의 추이', sub: '기록이 쌓일수록 보이는 변화' },
   breathe: { title: '호흡하기', sub: '지금 이 순간을 가라앉히기' },
   sleep: { title: '잠들기 전', sub: '머리를 비우고 내려놓기' },
@@ -38,6 +39,7 @@ const TAB_TITLES: Record<Tab, { title: string; sub: string }> = {
 export function App() {
   const { setPremiumActive } = useStore()
   const [tab, setTab] = useState<Tab>('record')
+  const [returnTab, setReturnTab] = useState<Tab>('record')
   const [paywallOpen, setPaywallOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
@@ -59,20 +61,40 @@ export function App() {
     }
   }, [setPremiumActive])
 
-  function openPaywall() {
-    setPaywallOpen(true)
+  // 서브 화면(호흡·수면·설정)으로 갈 때, 돌아올 메인 탭을 기억
+  function navigate(next: Tab) {
+    setPaywallOpen(false)
+    if (isSubView(next) && !isSubView(tab)) setReturnTab(tab)
+    setTab(next)
   }
 
+  const openPaywall = () => setPaywallOpen(true)
+
   const header = TAB_TITLES[tab]
+  const sub = isSubView(tab)
 
   return (
     <div className="app">
       <header className="app__header">
-        <h1 className="app__title">
-          {tab === 'record' && <span aria-hidden>🌿</span>}
-          {header.title}
-        </h1>
-        <p className="app__subtitle">{header.sub}</p>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, minWidth: 0 }}>
+          {sub && (
+            <button className="app__header-btn" onClick={() => navigate(returnTab)} aria-label="뒤로">
+              ‹
+            </button>
+          )}
+          <div style={{ minWidth: 0 }}>
+            <h1 className="app__title">
+              {tab === 'record' && <span aria-hidden>🌿</span>}
+              {header.title}
+            </h1>
+            <p className="app__subtitle">{header.sub}</p>
+          </div>
+        </div>
+        {!sub && !paywallOpen && (
+          <button className="app__header-btn" onClick={() => navigate('settings')} aria-label="설정">
+            ⚙️
+          </button>
+        )}
       </header>
 
       <main className="app__main">
@@ -81,14 +103,24 @@ export function App() {
         ) : (
           <>
             {tab === 'record' && (
-              <WorryFlow
-                onSaved={() => {
-                  setToast('기록을 저장했어요')
-                  setTab('history')
-                }}
-              />
+              <>
+                <div className="btn-row" style={{ marginTop: 0, marginBottom: 20 }}>
+                  <button className="btn" style={{ padding: '16px 0', fontSize: 15 }} onClick={() => navigate('breathe')}>
+                    🫧 호흡하기
+                  </button>
+                  <button className="btn" style={{ padding: '16px 0', fontSize: 15 }} onClick={() => navigate('sleep')}>
+                    🌙 잠들기 루틴
+                  </button>
+                </div>
+                <WorryFlow
+                  onSaved={() => {
+                    setToast('기록을 저장했어요')
+                    setTab('history')
+                  }}
+                />
+              </>
             )}
-            {tab === 'learn' && <Learn onNavigate={setTab} />}
+            {tab === 'learn' && <Learn onNavigate={navigate} />}
             {tab === 'history' && <History onUpgrade={openPaywall} />}
             {tab === 'breathe' && <Breathing />}
             {tab === 'sleep' && (
@@ -110,10 +142,7 @@ export function App() {
           <button
             key={t.id}
             className={`tabbar__item ${tab === t.id && !paywallOpen ? 'tabbar__item--active' : ''}`}
-            onClick={() => {
-              setPaywallOpen(false)
-              setTab(t.id)
-            }}
+            onClick={() => navigate(t.id)}
           >
             <span className="tabbar__icon" aria-hidden>
               {t.icon}
