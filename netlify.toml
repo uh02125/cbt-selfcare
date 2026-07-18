@@ -1,0 +1,20 @@
+# Netlify 지속배포(CD) 설정.
+# GitHub 저장소를 연결하면, push 할 때마다 아래 설정으로 자동 빌드·배포됩니다.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# 정적 자산 캐시(서비스워커/매니페스트는 항상 최신 확인)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"

@@ -1,0 +1,95 @@
+// 앱 전역 상태 스토어.
+// AppData 를 메모리에서 관리하고, 변경 시마다 localStorage 에 저장합니다.
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import type { AppData, SleepNote, WorryEntry, AppSettings } from './types'
+import { DEFAULT_DATA, loadData, makeId, saveData } from './lib/storage'
+
+interface StoreValue {
+  data: AppData
+  addEntry: (e: Omit<WorryEntry, 'id' | 'createdAt'>) => WorryEntry
+  deleteEntry: (id: string) => void
+  addSleepNote: (n: Omit<SleepNote, 'id' | 'createdAt'>) => void
+  deleteSleepNote: (id: string) => void
+  setPremiumActive: (sessionId: string | null) => void
+  updateSettings: (patch: Partial<AppSettings>) => void
+  replaceAll: (data: AppData) => void
+  resetAll: () => void
+}
+
+const StoreContext = createContext<StoreValue | null>(null)
+
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const [data, setData] = useState<AppData>(() => loadData())
+
+  // 변경 시마다 저장 (초기 마운트 포함해도 무해)
+  const first = useRef(true)
+  useEffect(() => {
+    if (first.current) {
+      first.current = false
+    }
+    saveData(data)
+  }, [data])
+
+  const addEntry = useCallback<StoreValue['addEntry']>((e) => {
+    const entry: WorryEntry = { ...e, id: makeId(), createdAt: Date.now() }
+    setData((d) => ({ ...d, entries: [entry, ...d.entries] }))
+    return entry
+  }, [])
+
+  const deleteEntry = useCallback<StoreValue['deleteEntry']>((id) => {
+    setData((d) => ({ ...d, entries: d.entries.filter((x) => x.id !== id) }))
+  }, [])
+
+  const addSleepNote = useCallback<StoreValue['addSleepNote']>((n) => {
+    const note: SleepNote = { ...n, id: makeId(), createdAt: Date.now() }
+    setData((d) => ({ ...d, sleepNotes: [note, ...d.sleepNotes] }))
+  }, [])
+
+  const deleteSleepNote = useCallback<StoreValue['deleteSleepNote']>((id) => {
+    setData((d) => ({ ...d, sleepNotes: d.sleepNotes.filter((x) => x.id !== id) }))
+  }, [])
+
+  const setPremiumActive = useCallback<StoreValue['setPremiumActive']>((sessionId) => {
+    setData((d) => ({
+      ...d,
+      premium: { active: true, unlockedAt: Date.now(), lastCheckoutSessionId: sessionId },
+    }))
+  }, [])
+
+  const updateSettings = useCallback<StoreValue['updateSettings']>((patch) => {
+    setData((d) => ({ ...d, settings: { ...d.settings, ...patch } }))
+  }, [])
+
+  const replaceAll = useCallback<StoreValue['replaceAll']>((next) => {
+    setData(next)
+  }, [])
+
+  const resetAll = useCallback<StoreValue['resetAll']>(() => {
+    setData(structuredClone(DEFAULT_DATA))
+  }, [])
+
+  const value = useMemo<StoreValue>(
+    () => ({
+      data,
+      addEntry,
+      deleteEntry,
+      addSleepNote,
+      deleteSleepNote,
+      setPremiumActive,
+      updateSettings,
+      replaceAll,
+      resetAll,
+    }),
+    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, updateSettings, replaceAll, resetAll],
+  )
+
+  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
+}
+
+export function useStore(): StoreValue {
+  const ctx = useContext(StoreContext)
+  if (!ctx) throw new Error('useStore 는 StoreProvider 안에서만 사용할 수 있습니다.')
+  return ctx
+}
