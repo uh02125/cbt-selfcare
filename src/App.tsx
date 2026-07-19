@@ -42,6 +42,8 @@ const TAB_TITLES: Record<Tab, { title: string; sub: string }> = {
 
 export function App() {
   const { setPremiumActive } = useStore()
+  // [임시 디버그] 결제 복귀 시 실제로 어떤 쿼리스트링이 오는지 화면에 표시 (진단 후 제거)
+  const [dbgSearch] = useState(() => window.location.search)
   const [tab, setTab] = useState<Tab>('record')
   const [returnTab, setReturnTab] = useState<Tab>('record')
   const [paywallOpen, setPaywallOpen] = useState(false)
@@ -79,6 +81,18 @@ export function App() {
 
   return (
     <div className="app">
+      {/* [임시 디버그] 결제 복귀 쿼리스트링 표시 — 진단 후 제거 */}
+      {dbgSearch && (
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+            background: '#0b1120', color: '#4ade80', fontSize: 12, fontWeight: 700,
+            padding: '8px 10px', wordBreak: 'break-all', borderBottom: '1px solid #4ade80',
+          }}
+        >
+          🔎 DEBUG 복귀 쿼리: {dbgSearch}
+        </div>
+      )}
       <header className="app__header">
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, minWidth: 0 }}>
           {sub && (
