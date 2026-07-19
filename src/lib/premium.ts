@@ -45,8 +45,11 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
  */
 export function detectCheckoutReturn(): { success: boolean; sessionId: string | null } {
   const params = new URLSearchParams(window.location.search)
-  const success = params.get('checkout') === 'success'
   const sessionId = params.get('session_id')
+  // Stripe Payment Link 는 결제 성공 후에만 이 주소로 리다이렉트하며 session_id(cs_...)를 붙인다.
+  // 우리가 지정한 checkout=success 가 붙는 경우도 있고, Stripe 가 session_id 만 붙이는 경우도 있어
+  // 둘 중 하나라도 있으면 결제 완료로 간주한다.
+  const success = params.get('checkout') === 'success' || (sessionId?.startsWith('cs_') ?? false)
   return { success, sessionId }
 }
 
