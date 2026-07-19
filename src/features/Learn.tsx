@@ -26,14 +26,21 @@ import {
 /* ─────────────────────────────── 목록 ─────────────────────────────── */
 export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
   const { data } = useStore()
-  const [openNo, setOpenNo] = useState<number | null>(null)
+  const [open, setOpen] = useState<{ no: number; review: boolean } | null>(null)
   const [started, setStarted] = useState(false)
   const done = data.program.completedSessions
 
-  if (openNo != null) {
-    const session = sessionByNo(openNo)
+  if (open != null) {
+    const session = sessionByNo(open.no)
     if (session) {
-      return <SessionReader session={session} onBack={() => setOpenNo(null)} onNavigate={onNavigate} />
+      return (
+        <SessionReader
+          session={session}
+          review={open.review}
+          onBack={() => setOpen(null)}
+          onNavigate={onNavigate}
+        />
+      )
     }
   }
 
@@ -61,19 +68,31 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
         </div>
       </div>
 
-      {/* 완료한 세션: 한 줄 요약 (접힌 형태) */}
+      {/* 완료한 세션: 개별 탭 가능한 복습 칩 */}
       {completedSessions.length > 0 && (
-        <p className="tiny" style={{ margin: '8px 4px', fontSize: 13.5 }}>
-          완료한 세션: {completedSessions.map((s) => `세션 ${s.no} ✓`).join(', ')}
-        </p>
+        <div style={{ margin: '8px 2px 4px' }}>
+          <p className="tiny" style={{ margin: '0 2px 6px', fontSize: 13 }}>완료한 세션 · 눌러서 복습</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {completedSessions.map((s) => (
+              <button
+                key={s.no}
+                className="chip"
+                style={{ fontSize: 13.5, fontWeight: 700, padding: '9px 13px', cursor: 'pointer' }}
+                onClick={() => setOpen({ no: s.no, review: true })}
+              >
+                세션 {s.no} ✓
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* 현재 진행 가능한 세션 1개만 카드로 */}
       {current ? (
         <button
           className="entry"
-          style={{ width: '100%', textAlign: 'left', cursor: 'pointer', borderColor: 'var(--accent-strong)', background: 'var(--accent-soft)' }}
-          onClick={() => setOpenNo(current.no)}
+          style={{ width: '100%', textAlign: 'left', cursor: 'pointer', borderColor: 'var(--accent-strong)', background: 'var(--accent-soft)', marginTop: 12 }}
+          onClick={() => setOpen({ no: current.no, review: false })}
         >
           <div className="entry__top" style={{ marginBottom: 6 }}>
             <span className="step-eyebrow" style={{ margin: 0, fontSize: 13.5 }}>세션 {current.no} · {current.minutes}분</span>
@@ -205,10 +224,12 @@ const emptyAnswers: Answers = {
 /* ─────────────────────────── 리더 ─────────────────────────── */
 function SessionReader({
   session,
+  review = false,
   onBack,
   onNavigate,
 }: {
   session: Session
+  review?: boolean
   onBack: () => void
   onNavigate: (tab: TabId) => void
 }) {
@@ -225,8 +246,9 @@ function SessionReader({
   const go = (d: number) => setI((p) => Math.min(total - 1, Math.max(0, p + d)))
   const next = () => go(1)
 
-  // 결과 페이지에 도달하면 한 번 저장
+  // 결과 페이지에 도달하면 한 번 저장 (복습 모드에서는 저장하지 않음)
   useEffect(() => {
+    if (review) return
     if (page.type !== 'result') return
     if (savedRef.current.has(page.kind)) return
     savedRef.current.add(page.kind)
@@ -244,7 +266,26 @@ function SessionReader({
       const { meets } = evaluateDsm5({ core: ans.core, criteria: ans.crit })
       addAssessment({ kind: 'dsm5', score: meets ? 1 : 0, meta: { why: ans.why, hardest: ans.hardest } })
     }
-  }, [page, ans, addAssessment])
+  }, [page, ans, addAssessment, review])
+
+  const nextLabel = review
+    ? atEnd
+      ? '복습 마치기'
+      : '다음'
+    : atEnd
+      ? isDone
+        ? '완료 취소'
+        : '세션 완료 ✓'
+      : '다음'
+
+  const onNext = atEnd
+    ? review
+      ? onBack // 복습 모드: 끝까지 보면 진행 상태 변경 없이 목록으로
+      : () => {
+          toggleSessionComplete(session.no)
+          if (!isDone) onBack()
+        }
+    : next
 
   return (
     <StepFlow
@@ -252,15 +293,9 @@ function SessionReader({
       total={total}
       onClose={onBack}
       onPrev={() => go(-1)}
-      nextLabel={atEnd ? (isDone ? '완료 취소' : '세션 완료 ✓') : '다음'}
-      onNext={
-        atEnd
-          ? () => {
-              toggleSessionComplete(session.no)
-              if (!isDone) onBack()
-            }
-          : next
-      }
+      nextLabel={nextLabel}
+      onNext={onNext}
+      banner={review ? <div className="review-banner">복습 중 · 진행 상태에는 영향 없어요</div> : undefined}
     >
       <PageBody page={page} session={session} ans={ans} setAns={setAns} next={next} onNavigate={onNavigate} />
     </StepFlow>

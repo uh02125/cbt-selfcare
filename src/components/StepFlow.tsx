@@ -14,6 +14,7 @@ export function StepFlow({
   nextLabel = '다음',
   canNext = true,
   hideNext = false,
+  banner,
 }: {
   step: number // 0-based
   total: number
@@ -24,6 +25,7 @@ export function StepFlow({
   nextLabel?: string
   canNext?: boolean
   hideNext?: boolean
+  banner?: ReactNode
 }) {
   return (
     <div className="stepflow">
@@ -42,6 +44,8 @@ export function StepFlow({
           {step + 1}/{total}
         </span>
       </div>
+
+      {banner}
 
       {/* key={step} 로 스텝이 바뀔 때마다 리마운트 → 전환 애니메이션 */}
       <div className="stepflow__body" key={step}>
