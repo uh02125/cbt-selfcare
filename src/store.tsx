@@ -14,6 +14,8 @@ interface StoreValue {
   deleteSleepNote: (id: string) => void
   setPremiumActive: (sessionId: string | null) => void
   toggleSessionComplete: (no: number) => void
+  setReviewProgress: (no: number, page: number) => void
+  clearReviewProgress: (no: number) => void
   addAssessment: (r: Omit<AssessmentResult, 'id' | 'createdAt'>) => void
   updateSettings: (patch: Partial<AppSettings>) => void
   replaceAll: (data: AppData) => void
@@ -68,6 +70,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  // 복습 이어보기 위치 저장 (학습 진행/완료 상태와 무관)
+  const setReviewProgress = useCallback<StoreValue['setReviewProgress']>((no, page) => {
+    setData((d) => ({
+      ...d,
+      program: { ...d.program, reviewProgress: { ...d.program.reviewProgress, [no]: page } },
+    }))
+  }, [])
+
+  const clearReviewProgress = useCallback<StoreValue['clearReviewProgress']>((no) => {
+    setData((d) => {
+      const next = { ...d.program.reviewProgress }
+      delete next[no]
+      return { ...d, program: { ...d.program, reviewProgress: next } }
+    })
+  }, [])
+
   const addAssessment = useCallback<StoreValue['addAssessment']>((r) => {
     const result: AssessmentResult = { ...r, id: makeId(), createdAt: Date.now() }
     setData((d) => ({ ...d, assessments: [result, ...d.assessments] }))
@@ -94,12 +112,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteSleepNote,
       setPremiumActive,
       toggleSessionComplete,
+      setReviewProgress,
+      clearReviewProgress,
       addAssessment,
       updateSettings,
       replaceAll,
       resetAll,
     }),
-    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, addAssessment, updateSettings, replaceAll, resetAll],
+    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, setReviewProgress, clearReviewProgress, addAssessment, updateSettings, replaceAll, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

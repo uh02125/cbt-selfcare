@@ -37,6 +37,7 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
         <SessionReader
           session={session}
           review={open.review}
+          startPage={open.review ? data.program.reviewProgress[open.no] ?? 0 : 0}
           onBack={() => setOpen(null)}
           onNavigate={onNavigate}
         />
@@ -73,16 +74,34 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
         <div style={{ margin: '8px 2px 4px' }}>
           <p className="tiny" style={{ margin: '0 2px 6px', fontSize: 13 }}>완료한 세션 · 눌러서 복습</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {completedSessions.map((s) => (
-              <button
-                key={s.no}
-                className="chip"
-                style={{ fontSize: 13.5, fontWeight: 700, padding: '9px 13px', cursor: 'pointer' }}
-                onClick={() => setOpen({ no: s.no, review: true })}
-              >
-                세션 {s.no} ✓
-              </button>
-            ))}
+            {completedSessions.map((s) => {
+              const resume = (data.program.reviewProgress[s.no] ?? 0) > 0
+              return (
+                <button
+                  key={s.no}
+                  className="chip"
+                  style={{ fontSize: 13.5, fontWeight: 700, padding: '9px 13px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  onClick={() => setOpen({ no: s.no, review: true })}
+                >
+                  세션 {s.no} ✓
+                  {resume && (
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: 'var(--accent)',
+                        background: 'var(--accent-soft)',
+                        border: '1px solid var(--accent-strong)',
+                        borderRadius: 999,
+                        padding: '1px 7px',
+                      }}
+                    >
+                      이어보기
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
@@ -225,19 +244,22 @@ const emptyAnswers: Answers = {
 function SessionReader({
   session,
   review = false,
+  startPage = 0,
   onBack,
   onNavigate,
 }: {
   session: Session
   review?: boolean
+  startPage?: number
   onBack: () => void
   onNavigate: (tab: TabId) => void
 }) {
-  const { data, toggleSessionComplete, addAssessment } = useStore()
+  const { data, toggleSessionComplete, setReviewProgress, clearReviewProgress, addAssessment } = useStore()
   const isDone = data.program.completedSessions.includes(session.no)
   const pages = useMemo(() => buildPages(session), [session])
-  const [i, setI] = useState(0)
+  const [i, setI] = useState(() => Math.min(pages.length - 1, Math.max(0, startPage)))
   const [ans, setAns] = useState<Answers>(emptyAnswers)
+  const [showExit, setShowExit] = useState(false) // 복습 모드 나가기 확인 모달
   const savedRef = useRef<Set<string>>(new Set())
 
   const total = pages.length
@@ -280,25 +302,62 @@ function SessionReader({
 
   const onNext = atEnd
     ? review
-      ? onBack // 복습 모드: 끝까지 보면 진행 상태 변경 없이 목록으로
+      ? () => {
+          // 복습 완주: 진행 상태 변경 없이, 이어보기 지점만 정리하고 목록으로
+          clearReviewProgress(session.no)
+          onBack()
+        }
       : () => {
           toggleSessionComplete(session.no)
           if (!isDone) onBack()
         }
     : next
 
+  // 닫기(X): 복습 모드는 확인 모달, 일반 모드는 바로 나가기
+  const onClose = review ? () => setShowExit(true) : onBack
+
   return (
-    <StepFlow
-      step={i}
-      total={total}
-      onClose={onBack}
-      onPrev={() => go(-1)}
-      nextLabel={nextLabel}
-      onNext={onNext}
-      banner={review ? <div className="review-banner">복습 중 · 진행 상태에는 영향 없어요</div> : undefined}
-    >
-      <PageBody page={page} session={session} ans={ans} setAns={setAns} next={next} onNavigate={onNavigate} />
-    </StepFlow>
+    <>
+      <StepFlow
+        step={i}
+        total={total}
+        onClose={onClose}
+        onPrev={() => go(-1)}
+        nextLabel={nextLabel}
+        onNext={onNext}
+        banner={review ? <div className="review-banner">복습 중 · 진행 상태에는 영향 없어요</div> : undefined}
+      >
+        <PageBody page={page} session={session} ans={ans} setAns={setAns} next={next} onNavigate={onNavigate} />
+      </StepFlow>
+
+      {showExit && (
+        <div className="modal-backdrop" onClick={() => setShowExit(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-card__title">복습을 여기서 멈출까요?</h3>
+            <p className="modal-card__desc">지금까지 본 위치를 저장하면 다음에 이어서 볼 수 있어요.</p>
+            <button
+              className="btn btn--primary btn--block"
+              onClick={() => {
+                setReviewProgress(session.no, i)
+                onBack()
+              }}
+            >
+              저장하고 나가기
+            </button>
+            <button
+              className="btn btn--ghost btn--block"
+              style={{ marginTop: 10 }}
+              onClick={() => {
+                // 저장 안 함: 기존 저장값이 있으면 그대로 유지(이번 시도 미반영)
+                onBack()
+              }}
+            >
+              저장하지 않고 나가기
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

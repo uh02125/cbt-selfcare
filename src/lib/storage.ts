@@ -12,7 +12,7 @@ export const DEFAULT_DATA: AppData = {
   sleepNotes: [],
   premium: { active: false, unlockedAt: null, lastCheckoutSessionId: null },
   settings: { reminderHour: null, theme: 'system' },
-  program: { completedSessions: [] },
+  program: { completedSessions: [], reviewProgress: {} },
   assessments: [],
 }
 

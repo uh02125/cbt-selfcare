@@ -641,6 +641,58 @@ input[type='range'] {
   }
 }
 
+/* 확인 모달 (복습 나가기 등) — stepflow(15)·탭바(20) 위 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  animation: modal-fade 0.15s ease;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px 20px 20px;
+  box-shadow: var(--shadow);
+  animation: modal-rise 0.2s ease;
+}
+
+.modal-card__title {
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.modal-card__desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0 0 18px;
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
 .hr {
   height: 1px;
   background: var(--border);

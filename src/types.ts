@@ -68,6 +68,9 @@ export interface AssessmentResult {
 /** 4세션 교육 프로그램 진도 */
 export interface ProgramState {
   completedSessions: number[] // 완료한 세션 번호 (1~4)
+  // 복습 모드 이어보기 위치: 세션번호 → 마지막으로 본 페이지 인덱스(0-based).
+  // 학습 진행/완료 상태와 무관하며, 복습 모드에서만 읽고 쓴다.
+  reviewProgress: Record<number, number>
 }
 
 export interface PremiumState {
