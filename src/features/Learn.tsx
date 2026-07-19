@@ -47,8 +47,8 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
       <div className="card">
         <div className="row-between">
           <div>
-            <b style={{ fontSize: 16 }}>수면 교육 4주 과정</b>
-            <p className="tiny" style={{ margin: '3px 0 0' }}>하루 몇 분, 넘기면서 배워요</p>
+            <b style={{ fontSize: 19 }}>수면 교육 4주 과정</b>
+            <p className="tiny" style={{ margin: '4px 0 0', fontSize: 13.5 }}>하루 몇 분, 넘기면서 배워요</p>
           </div>
           <span className="slider-value" style={{ minWidth: 'auto' }}>
             {done.length}/{SESSIONS.length}
@@ -63,7 +63,7 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
 
       {/* 완료한 세션: 한 줄 요약 (접힌 형태) */}
       {completedSessions.length > 0 && (
-        <p className="tiny" style={{ margin: '4px 4px 4px' }}>
+        <p className="tiny" style={{ margin: '8px 4px', fontSize: 13.5 }}>
           완료한 세션: {completedSessions.map((s) => `세션 ${s.no} ✓`).join(', ')}
         </p>
       )}
@@ -75,12 +75,12 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
           style={{ width: '100%', textAlign: 'left', cursor: 'pointer', borderColor: 'var(--accent-strong)', background: 'var(--accent-soft)' }}
           onClick={() => setOpenNo(current.no)}
         >
-          <div className="entry__top" style={{ marginBottom: 4 }}>
-            <span className="step-eyebrow" style={{ margin: 0 }}>세션 {current.no} · {current.minutes}분</span>
+          <div className="entry__top" style={{ marginBottom: 6 }}>
+            <span className="step-eyebrow" style={{ margin: 0, fontSize: 13.5 }}>세션 {current.no} · {current.minutes}분</span>
             <span className="delta" style={{ color: 'var(--accent)', background: 'transparent' }}>지금 시작 →</span>
           </div>
-          <p className="entry__thought" style={{ margin: '0 0 2px', fontSize: 17 }}>{current.title}</p>
-          <p className="tiny" style={{ margin: 0 }}>{current.subtitle}</p>
+          <p className="entry__thought" style={{ margin: '0 0 4px', fontSize: 22, lineHeight: 1.3 }}>{current.title}</p>
+          <p className="tiny" style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5 }}>{current.subtitle}</p>
         </button>
       ) : (
         <div className="card" style={{ textAlign: 'center' }}>
