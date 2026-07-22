@@ -3,7 +3,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { AppData, SleepNote, WorryEntry, AppSettings, AssessmentResult } from './types'
+import type { AppData, SleepNote, WorryEntry, AppSettings, AssessmentResult, SurveyAnswers } from './types'
 import { DEFAULT_DATA, loadData, makeId, saveData } from './lib/storage'
 
 interface StoreValue {
@@ -17,6 +17,7 @@ interface StoreValue {
   setReviewProgress: (no: number, page: number) => void
   clearReviewProgress: (no: number) => void
   addAssessment: (r: Omit<AssessmentResult, 'id' | 'createdAt'>) => void
+  saveOnboarding: (answers: SurveyAnswers) => void
   updateSettings: (patch: Partial<AppSettings>) => void
   replaceAll: (data: AppData) => void
   resetAll: () => void
@@ -91,6 +92,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setData((d) => ({ ...d, assessments: [result, ...d.assessments] }))
   }, [])
 
+  // 온보딩 설문 저장 (매일 수면일지와 별도 네임스페이스). 다시 하면 덮어쓴다.
+  const saveOnboarding = useCallback<StoreValue['saveOnboarding']>((answers) => {
+    setData((d) => ({ ...d, onboarding: { ...answers, updatedAt: Date.now() } }))
+  }, [])
+
   const updateSettings = useCallback<StoreValue['updateSettings']>((patch) => {
     setData((d) => ({ ...d, settings: { ...d.settings, ...patch } }))
   }, [])
@@ -115,11 +121,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setReviewProgress,
       clearReviewProgress,
       addAssessment,
+      saveOnboarding,
       updateSettings,
       replaceAll,
       resetAll,
     }),
-    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, setReviewProgress, clearReviewProgress, addAssessment, updateSettings, replaceAll, resetAll],
+    [data, addEntry, deleteEntry, addSleepNote, deleteSleepNote, setPremiumActive, toggleSessionComplete, setReviewProgress, clearReviewProgress, addAssessment, saveOnboarding, updateSettings, replaceAll, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

@@ -14,6 +14,7 @@ export const DEFAULT_DATA: AppData = {
   settings: { reminderHour: null, theme: 'system' },
   program: { completedSessions: [], reviewProgress: {} },
   assessments: [],
+  onboarding: null,
 }
 
 /** 저장된 데이터를 읽어옵니다. 손상/부재 시 기본값 반환. */
@@ -52,6 +53,7 @@ function migrate(parsed: Partial<AppData>): AppData {
     settings: { ...base.settings, ...parsed.settings },
     program: { ...base.program, ...parsed.program },
     assessments: parsed.assessments ?? base.assessments,
+    onboarding: parsed.onboarding ?? base.onboarding,
   }
 }
 

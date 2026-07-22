@@ -7,6 +7,20 @@ import { useStore } from '../store'
 import { SESSIONS, sessionByNo } from '../lib/program'
 import type { Block, Session, TabId } from '../lib/program'
 import { StepFlow } from '../components/StepFlow'
+import { formatDate } from '../components/common'
+import type { SurveyAnswers } from '../types'
+import {
+  DEFAULT_SURVEY,
+  SLEEP_HOURS_OPTIONS,
+  NAP_HOURS_OPTIONS,
+  DAY_OPTIONS,
+  CANT_SLEEP_OPTIONS,
+  CHECK_CLOCK_OPTIONS,
+  DAY_LIE_OPTIONS,
+  BED_ACTIVITY_OPTIONS,
+  summaryRows,
+  surveyComments,
+} from '../lib/onboarding'
 import {
   ISI_ITEMS,
   DBAS_ITEMS,
@@ -28,6 +42,7 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
   const { data } = useStore()
   const [open, setOpen] = useState<{ no: number; review: boolean } | null>(null)
   const [started, setStarted] = useState(false)
+  const [reviewSurvey, setReviewSurvey] = useState(false)
   const done = data.program.completedSessions
 
   if (open != null) {
@@ -43,6 +58,21 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
         />
       )
     }
+  }
+
+  // 세션1 설문 응답 다시 보기 (읽기 전용)
+  if (reviewSurvey && data.onboarding) {
+    return (
+      <div>
+        <button className="btn btn--ghost" style={{ marginBottom: 10 }} onClick={() => setReviewSurvey(false)}>
+          ← 돌아가기
+        </button>
+        <SurveySummaryView survey={data.onboarding} heading="내 수면 습관 점검" />
+        <p className="tiny" style={{ marginTop: 14, lineHeight: 1.6 }}>
+          {formatDate(data.onboarding.updatedAt)} 응답 · 세션 1을 다시 열면 새로 답할 수 있어요.
+        </p>
+      </div>
+    )
   }
 
   if (!started) return <LearnIntro onStart={() => setStarted(true)} />
@@ -68,6 +98,21 @@ export function Learn({ onNavigate }: { onNavigate: (tab: TabId) => void }) {
           ))}
         </div>
       </div>
+
+      {/* 세션1에서 답한 '내 수면 습관 점검' 다시 보기 진입점 */}
+      {data.onboarding && (
+        <button
+          className="entry"
+          style={{ width: '100%', textAlign: 'left', cursor: 'pointer', marginTop: 12 }}
+          onClick={() => setReviewSurvey(true)}
+        >
+          <div className="entry__top" style={{ marginBottom: 4 }}>
+            <span className="step-eyebrow" style={{ margin: 0, fontSize: 13 }}>내 수면 습관 점검</span>
+            <span className="delta" style={{ color: 'var(--accent)', background: 'transparent' }}>답변 다시 보기 →</span>
+          </div>
+          <p className="tiny" style={{ margin: 0, fontSize: 13.5 }}>세션 1에서 답한 내 수면 습관을 다시 볼 수 있어요.</p>
+        </button>
+      )}
 
       {/* 완료한 세션: 개별 탭 가능한 복습 칩 */}
       {completedSessions.length > 0 && (
@@ -168,6 +213,12 @@ type Page =
   | { type: 'q-dsm5crit'; idx: number }
   | { type: 'habits' }
   | { type: 'result'; kind: AssessKind }
+  | { type: 'survey-intro' }
+  | { type: 'survey-q'; q: SurveyQKey }
+  | { type: 'survey-summary' }
+
+type SurveyQKey = 'bed' | 'wake' | 'sleepHours' | 'cantSleep' | 'checkClock' | 'dayLie' | 'bedActivity' | 'nap'
+const SURVEY_QS: SurveyQKey[] = ['bed', 'wake', 'sleepHours', 'cantSleep', 'checkClock', 'dayLie', 'bedActivity', 'nap']
 
 function buildPages(session: Session): Page[] {
   const pages: Page[] = [{ type: 'intro' }]
@@ -195,6 +246,14 @@ function buildPages(session: Session): Page[] {
       } else {
         pages.push({ type: 'habits' }, { type: 'result', kind: 'habits' })
       }
+      eyebrow = undefined
+      firstInGroup = true
+      continue
+    }
+    if (b.type === 'survey') {
+      pages.push({ type: 'survey-intro' })
+      SURVEY_QS.forEach((q) => pages.push({ type: 'survey-q', q }))
+      pages.push({ type: 'survey-summary' })
       eyebrow = undefined
       firstInGroup = true
       continue
@@ -228,6 +287,7 @@ interface Answers {
   why: string
   hardest: string
   habits: HabitsInput
+  survey: SurveyAnswers
 }
 
 const emptyAnswers: Answers = {
@@ -238,6 +298,7 @@ const emptyAnswers: Answers = {
   why: '',
   hardest: '',
   habits: { bedTime: '23:00', outTime: '07:00', onsetMin: 20, wasoMin: 20 },
+  survey: DEFAULT_SURVEY,
 }
 
 /* ─────────────────────────── 리더 ─────────────────────────── */
@@ -254,13 +315,15 @@ function SessionReader({
   onBack: () => void
   onNavigate: (tab: TabId) => void
 }) {
-  const { data, toggleSessionComplete, setReviewProgress, clearReviewProgress, addAssessment } = useStore()
+  const { data, toggleSessionComplete, setReviewProgress, clearReviewProgress, addAssessment, saveOnboarding } = useStore()
   const isDone = data.program.completedSessions.includes(session.no)
   const pages = useMemo(() => buildPages(session), [session])
   const [i, setI] = useState(() => Math.min(pages.length - 1, Math.max(0, startPage)))
-  const [ans, setAns] = useState<Answers>(emptyAnswers)
+  // 이전에 온보딩 설문에 답했다면 그 값으로 시작(재응답 시 이어서 편집)
+  const [ans, setAns] = useState<Answers>(() => ({ ...emptyAnswers, survey: data.onboarding ?? DEFAULT_SURVEY }))
   const [showExit, setShowExit] = useState(false) // 복습 모드 나가기 확인 모달
   const savedRef = useRef<Set<string>>(new Set())
+  const savedSurveyRef = useRef(false)
 
   const total = pages.length
   const page = pages[i]
@@ -289,6 +352,15 @@ function SessionReader({
       addAssessment({ kind: 'dsm5', score: meets ? 1 : 0, meta: { why: ans.why, hardest: ans.hardest } })
     }
   }, [page, ans, addAssessment, review])
+
+  // 온보딩 설문 요약에 도달하면 한 번 저장 (복습 모드 제외, 별도 네임스페이스)
+  useEffect(() => {
+    if (review) return
+    if (page.type !== 'survey-summary') return
+    if (savedSurveyRef.current) return
+    savedSurveyRef.current = true
+    saveOnboarding(ans.survey)
+  }, [page, ans, review, saveOnboarding])
 
   const nextLabel = review
     ? atEnd
@@ -465,6 +537,19 @@ function PageBody({
       return <HabitsPage ans={ans} setAns={setAns} />
     case 'result':
       return <ResultPage kind={page.kind} ans={ans} />
+    case 'survey-intro':
+      return <SurveyIntroPage />
+    case 'survey-q':
+      return (
+        <SurveyQuestion
+          q={page.q}
+          survey={ans.survey}
+          setSurvey={(patch) => setAns((a) => ({ ...a, survey: { ...a.survey, ...patch } }))}
+          next={next}
+        />
+      )
+    case 'survey-summary':
+      return <SurveySummaryView survey={ans.survey} />
   }
 }
 
@@ -776,7 +861,315 @@ function BigBlock({ block, onNavigate }: { block: Block; onNavigate: (tab: TabId
       )
     case 'assessment':
       return null // 페이지 분해에서 문항 페이지로 처리
+    case 'survey':
+      return null // 페이지 분해에서 설문 페이지로 처리
   }
+}
+
+/* ─────────────────────────── 온보딩 설문 ─────────────────────────── */
+const surveyH = {
+  fontSize: 24,
+  fontWeight: 800,
+  letterSpacing: '-0.02em',
+  lineHeight: 1.4,
+  margin: '0 0 22px',
+  whiteSpace: 'pre-line',
+} as const
+
+const SURVEY_TIME = {
+  width: '100%',
+  background: 'var(--bg-elev)',
+  border: '1px solid var(--border)',
+  color: 'var(--text)',
+  borderRadius: 14,
+  padding: '18px',
+  fontSize: 26,
+  fontWeight: 700,
+  textAlign: 'center' as const,
+}
+
+function SurveyQ({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div style={{ paddingTop: 8 }}>
+      <div style={S.eyebrow}>나의 수면 습관</div>
+      <h2 style={surveyH}>{title}</h2>
+      {children}
+    </div>
+  )
+}
+
+function SurveyIntroPage() {
+  return (
+    <div style={{ paddingTop: 8 }}>
+      <div style={{ fontSize: 30, marginBottom: 10 }}>🛏️</div>
+      <h2 style={surveyH}>{'나의 수면 습관에 대해\n생각해봅시다'}</h2>
+      <p style={{ fontSize: 17, lineHeight: 1.8, color: 'var(--text-dim)', margin: 0 }}>
+        몇 가지 질문에 답하면서, 내 수면 습관을 스스로 점검해볼게요. 정답은 없어요 — 편하게 지금의 나를 떠올리며
+        골라보세요.
+      </p>
+      <p className="tiny" style={{ margin: '18px 0 0', lineHeight: 1.6 }}>아래 ‘다음’을 눌러 시작하세요.</p>
+    </div>
+  )
+}
+
+function SurveyChoices({
+  options,
+  selected,
+  onPick,
+}: {
+  options: readonly { value: string; label: string }[]
+  selected: string
+  onPick: (v: string) => void
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {options.map((o) => (
+        <button
+          key={o.value}
+          className={`chip chip--block ${selected === o.value ? 'chip--on' : ''}`}
+          style={{ fontSize: 17, padding: '16px', textAlign: 'center', fontWeight: 700 }}
+          onClick={() => onPick(o.value)}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+const WHEEL_ROW = 56
+
+function Wheel({
+  options,
+  value,
+  onChange,
+}: {
+  options: { v: number; label: string }[]
+  value: number
+  onChange: (v: number) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const idx = Math.max(0, options.findIndex((o) => Math.abs(o.v - value) < 1e-6))
+    el.scrollTop = idx * WHEEL_ROW
+  }, []) // 최초 진입 시 현재 값 위치로
+
+  function onScroll() {
+    const el = ref.current
+    if (!el) return
+    const idx = Math.max(0, Math.min(options.length - 1, Math.round(el.scrollTop / WHEEL_ROW)))
+    if (Math.abs(options[idx].v - value) > 1e-6) onChange(options[idx].v)
+  }
+
+  function scrollTo(idx: number) {
+    ref.current?.scrollTo({ top: idx * WHEEL_ROW, behavior: 'smooth' })
+    onChange(options[idx].v)
+  }
+
+  return (
+    <div style={{ position: 'relative', height: WHEEL_ROW * 3 }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: WHEEL_ROW,
+          height: WHEEL_ROW,
+          left: 0,
+          right: 0,
+          borderTop: '1px solid var(--border)',
+          borderBottom: '1px solid var(--border)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div ref={ref} className="wheelpick" style={{ height: WHEEL_ROW * 3 }} onScroll={onScroll}>
+        <div style={{ height: WHEEL_ROW }} />
+        {options.map((o, idx) => {
+          const on = Math.abs(o.v - value) < 1e-6
+          return (
+            <div
+              key={o.v}
+              className="wheelpick__row"
+              style={{
+                height: WHEEL_ROW,
+                fontSize: on ? 26 : 19,
+                fontWeight: on ? 800 : 600,
+                opacity: on ? 1 : 0.35,
+                transition: 'font-size 0.1s, opacity 0.1s',
+              }}
+              onClick={() => scrollTo(idx)}
+            >
+              {o.label}
+            </div>
+          )
+        })}
+        <div style={{ height: WHEEL_ROW }} />
+      </div>
+    </div>
+  )
+}
+
+function SurveyQuestion({
+  q,
+  survey,
+  setSurvey,
+  next,
+}: {
+  q: SurveyQKey
+  survey: SurveyAnswers
+  setSurvey: (patch: Partial<SurveyAnswers>) => void
+  next: () => void
+}) {
+  switch (q) {
+    case 'bed':
+      return (
+        <SurveyQ title={'평소(최근 2주 동안)\n몇 시에 잠자리에 드시나요?'}>
+          <input type="time" value={survey.bedTime} onChange={(e) => setSurvey({ bedTime: e.target.value })} style={SURVEY_TIME} />
+        </SurveyQ>
+      )
+    case 'wake':
+      return (
+        <SurveyQ title={'몇 시에\n잠자리에서 일어나시나요?'}>
+          <input type="time" value={survey.wakeTime} onChange={(e) => setSurvey({ wakeTime: e.target.value })} style={SURVEY_TIME} />
+        </SurveyQ>
+      )
+    case 'sleepHours':
+      return (
+        <SurveyQ title={'그렇다면 누워있는 시간 중\n몇 시간이나 주무시나요?'}>
+          <Wheel options={SLEEP_HOURS_OPTIONS} value={survey.sleepHours} onChange={(v) => setSurvey({ sleepHours: v })} />
+        </SurveyQ>
+      )
+    case 'cantSleep':
+      return (
+        <SurveyQ title={'잠이 안 오면\n뭘 하시나요?'}>
+          <SurveyChoices
+            options={CANT_SLEEP_OPTIONS}
+            selected={survey.cantSleepAct}
+            onPick={(v) => {
+              setSurvey({ cantSleepAct: v as SurveyAnswers['cantSleepAct'] })
+              if (v !== 'custom') next()
+            }}
+          />
+          {survey.cantSleepAct === 'custom' && (
+            <textarea
+              value={survey.cantSleepActText}
+              onChange={(e) => setSurvey({ cantSleepActText: e.target.value })}
+              placeholder="예: 물을 마시거나 화장실에 다녀온다"
+              style={{ marginTop: 12, minHeight: 70, fontSize: 16 }}
+              autoFocus
+            />
+          )}
+        </SurveyQ>
+      )
+    case 'checkClock':
+      return (
+        <SurveyQ title={'잠이 안 오거나 중간에 깨면\n시간을 확인하시나요?'}>
+          <SurveyChoices
+            options={CHECK_CLOCK_OPTIONS}
+            selected={survey.checkClock}
+            onPick={(v) => {
+              setSurvey({ checkClock: v as SurveyAnswers['checkClock'] })
+              next()
+            }}
+          />
+        </SurveyQ>
+      )
+    case 'dayLie':
+      return (
+        <SurveyQ title={'혹시 낮에도\n누워서 지내지는 않으시나요?'}>
+          <SurveyChoices
+            options={DAY_LIE_OPTIONS}
+            selected={survey.dayLie}
+            onPick={(v) => {
+              setSurvey({ dayLie: v as SurveyAnswers['dayLie'] })
+              next()
+            }}
+          />
+        </SurveyQ>
+      )
+    case 'bedActivity':
+      return (
+        <SurveyQ title={'낮에도 침대(잠자리)에서\n생활하시지는 않나요?'}>
+          <SurveyChoices
+            options={BED_ACTIVITY_OPTIONS}
+            selected={survey.bedActivity}
+            onPick={(v) => {
+              setSurvey({ bedActivity: v as SurveyAnswers['bedActivity'] })
+              if (v !== 'other') next()
+            }}
+          />
+          {survey.bedActivity === 'other' && (
+            <textarea
+              value={survey.bedActivityText}
+              onChange={(e) => setSurvey({ bedActivityText: e.target.value })}
+              placeholder="예: 침대에서 일이나 공부를 한다"
+              style={{ marginTop: 12, minHeight: 70, fontSize: 16 }}
+              autoFocus
+            />
+          )}
+        </SurveyQ>
+      )
+    case 'nap':
+      return (
+        <SurveyQ title={'낮잠은\n얼마나 주무시나요?'}>
+          <div style={{ display: 'flex', gap: 14 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...S.eyebrow, textAlign: 'center' }}>낮잠 시간</div>
+              <Wheel options={NAP_HOURS_OPTIONS} value={survey.napHours} onChange={(v) => setSurvey({ napHours: v })} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...S.eyebrow, textAlign: 'center' }}>일주일에</div>
+              <Wheel options={DAY_OPTIONS} value={survey.napDaysPerWeek} onChange={(v) => setSurvey({ napDaysPerWeek: v })} />
+            </div>
+          </div>
+          <p className="tiny" style={{ marginTop: 14, textAlign: 'center' }}>낮잠을 거의 안 주무시면 둘 다 0으로 두세요.</p>
+        </SurveyQ>
+      )
+  }
+}
+
+function SurveySummaryView({ survey, heading = '이렇게 답해주셨어요' }: { survey: SurveyAnswers; heading?: string }) {
+  const rows = summaryRows(survey)
+  const comments = surveyComments(survey)
+  return (
+    <div style={{ paddingTop: 8 }}>
+      <div style={S.eyebrow}>나의 수면 습관</div>
+      <h2 style={S.bigHeading}>{heading}</h2>
+
+      <div className="card" style={{ padding: '4px 14px' }}>
+        {rows.map((r, idx) => (
+          <div
+            key={r.label}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 12,
+              padding: '9px 0',
+              borderTop: idx ? '1px solid var(--border)' : 'none',
+            }}
+          >
+            <span style={{ fontSize: 14, color: 'var(--text-dim)', flexShrink: 0 }}>{r.label}</span>
+            <span style={{ fontSize: 15, fontWeight: 700, textAlign: 'right' }}>{r.value}</span>
+          </div>
+        ))}
+      </div>
+
+      {comments.length > 0 ? (
+        <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {comments.map((c, idx) => (
+            <div key={idx} className="card" style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent-strong)', padding: 14 }}>
+              <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.7 }}>{c}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="tiny" style={{ marginTop: 14, lineHeight: 1.7 }}>
+          지금 습관에서 특별히 걸리는 부분은 눈에 띄지 않았어요. 앞으로 세션을 따라가며 내 잠을 더 이해해봐요.
+        </p>
+      )}
+    </div>
+  )
 }
 
 const S = {

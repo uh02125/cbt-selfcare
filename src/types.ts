@@ -54,6 +54,28 @@ export interface AppData {
   settings: AppSettings
   program: ProgramState
   assessments: AssessmentResult[]
+  // 세션1 온보딩 자가점검 설문. 매일 수면일지(sleepNotes/assessments)와 별도 네임스페이스.
+  onboarding: OnboardingSurvey | null
+}
+
+/** 세션1 온보딩 설문 응답 (작업 상태) */
+export interface SurveyAnswers {
+  bedTime: string // "HH:MM" (24h)
+  wakeTime: string // "HH:MM" (24h)
+  sleepHours: number // 누운 시간 중 실제 수면(시간), 0~12, 0.5 단위
+  cantSleepAct: 'lie' | 'tv' | 'phone' | 'custom' // 잠 안 올 때 하는 것
+  cantSleepActText: string // '기타' 직접 입력
+  checkClock: 'always' | 'sometimes' | 'never' // 시간 확인 여부
+  dayLie: 'often' | 'sometimes' | 'never' // 낮에 눕는 정도
+  bedActivity: 'tv' | 'book' | 'other' | 'none' // 낮에 잠자리에서 하는 활동
+  bedActivityText: string // '다른 활동' 직접 입력
+  napHours: number // 낮잠 시간(시간), 0~6, 0.5 단위
+  napDaysPerWeek: number // 일주일에 며칠, 0~7
+}
+
+/** 저장되는 온보딩 설문 (응답 + 저장 시각) */
+export interface OnboardingSurvey extends SurveyAnswers {
+  updatedAt: number // epoch ms
 }
 
 /** 자가검사 결과 (ISI, DBAS-16, 수면효율, DSM-5) */

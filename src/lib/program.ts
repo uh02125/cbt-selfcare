@@ -18,6 +18,7 @@ export type Block =
   | { type: 'rules'; items: { rule: string; why: string }[] }
   | { type: 'practice'; label: string; tab: TabId; desc: string }
   | { type: 'assessment'; kind: 'isi' | 'dbas' | 'habits' | 'dsm5' }
+  | { type: 'survey' } // 세션1 온보딩 자가점검 설문 (도입→질문8→요약)
 
 export interface Session {
   no: number
@@ -35,7 +36,7 @@ export const SESSIONS: Session[] = [
     no: 1,
     title: '왜 잠이 안 올까?',
     subtitle: '불면증과 친해지기',
-    minutes: 6,
+    minutes: 10,
     intro: '먼저 내 상태를 4가지 검사로 확인해요. 체크만 하면 점수가 나오고, 평균과 비교해 줍니다.',
     blocks: [
       { type: 'assessment', kind: 'dsm5' },
@@ -66,6 +67,9 @@ export const SESSIONS: Session[] = [
         tab: 'sleep',
         desc: '오늘 밤부터 잠자리 기록을 남기면 내 패턴이 보여요.',
       },
+
+      // 마무리: 내 수면 습관 자가점검 설문 (도입 → 질문 8개 → 요약·코멘트)
+      { type: 'survey' },
     ],
     takeaways: [
       '검사 점수는 "지금 위치"일 뿐, 바꿀 수 있어요.',
