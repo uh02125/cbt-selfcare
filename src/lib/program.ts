@@ -37,8 +37,11 @@ export const SESSIONS: Session[] = [
     title: '왜 잠이 안 올까?',
     subtitle: '불면증과 친해지기',
     minutes: 10,
-    intro: '먼저 내 상태를 4가지 검사로 확인해요. 체크만 하면 점수가 나오고, 평균과 비교해 줍니다.',
+    intro: '먼저 내 수면 습관을 가볍게 돌아본 뒤, 4가지 자가검사로 지금 상태를 확인해요. 체크만 하면 점수가 나오고, 평균과 비교해 줍니다.',
     blocks: [
+      // 도입: 내 수면 습관 자가점검 설문 (도입 → 질문 8개 → 요약·코멘트)
+      { type: 'survey' },
+
       { type: 'assessment', kind: 'dsm5' },
       { type: 'assessment', kind: 'isi' },
       { type: 'assessment', kind: 'dbas' },
@@ -67,9 +70,6 @@ export const SESSIONS: Session[] = [
         tab: 'sleep',
         desc: '오늘 밤부터 잠자리 기록을 남기면 내 패턴이 보여요.',
       },
-
-      // 마무리: 내 수면 습관 자가점검 설문 (도입 → 질문 8개 → 요약·코멘트)
-      { type: 'survey' },
     ],
     takeaways: [
       '검사 점수는 "지금 위치"일 뿐, 바꿀 수 있어요.',
